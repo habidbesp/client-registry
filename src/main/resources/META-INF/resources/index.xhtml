@@ -6,18 +6,154 @@
     <h:head>
         <title>Fitness Zone Web</title>
         <link rel="stylesheet" href="https://unpkg.com/primeflex@latest/primeflex.css"/>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/primeflex@latest/primeflex.css"/>
     </h:head>
 
     <h:body>
-        <div class="flex justify-content-center flex-wrap card-container yellow-container">
-            <div class="flex align-items-center justify-content-center w-20rem h-4rem
-            bg-yellow-500 font-bold text-gray-900 border-rounded m-2">
-                <h3>Fitness Zone (GYM)</h3>
-            </div>
+        <div class="card">
+            <h:form id="form-clients">
+                <p:growl id="messages" showDetails="true"/>
+                <!-- Menubar -->
+                <div class="card">
+                    <p:menubar>
+                        <p:menuitem value="Start"
+                                    icon="pi pi-fw pi-user"
+                                    update=":form-clients:table-clients"
+                                    actionListener="#{indexControler.loadingData}"
+                        />
+                        <p:menuitem value="New Client"
+                                    icon="pi pi-fw pi-plus"
+                                    actionListener="#{indexControler.addClient}"
+                                    update=":form-modal:window-client"
+                                    oncomplete="PF('windowModalClient').show()"
+                        />
+                    </p:menubar>
+                </div>
+                <!-- Data Table -->
+                <div class="card">
+                    <p:dataTable
+                            value="#{indexControler.clients}"
+                            var="client"
+                            id="table-clients"
+                            widgetVar="tableClients"
+                    >
+                        <f:facet name="header">
+                            <div class="flex justify-content-center flex-wrap card-container yellow-container">
+                                <div class="flex align-items-center justify-content-center w-20rem h-4rem
+                                    bg-yellow-500 font-bold text-gray-900 border-rounded m-2">
+                                    <h3>Fitness Zone (GYM)</h3>
+                                </div>
+                            </div>
+                        </f:facet>
+
+                        <p:column headerText="Id">
+                            <h:outputText value="#{client.id}"/>
+                        </p:column>
+
+                        <p:column headerText="Firstname">
+                            <h:outputText value="#{client.firstname}"/>
+                        </p:column>
+
+                        <p:column headerText="Lastname">
+                            <h:outputText value="#{client.lastname}"/>
+                        </p:column>
+
+                        <p:column headerText="Membership">
+                            <h:outputText value="#{client.membership}"/>
+                        </p:column>
+
+                        <p:column>
+                            <p:commandButton
+                                    value="Edit"
+                                    icon="pi pi-pencil"
+                                    update="form-modal:window-client"
+                                    process="@this"
+                                    oncomplete="PF('windowModalClient').show()"
+                                    class="ui-button-primary mr-2"
+                            >
+                                <f:setPropertyActionListener
+                                    value="#{client}"
+                                    target="#{indexControler.selectedClient}"
+                                />
+                                <p:resetInput target=":form-modal:window-client"/>
+                            </p:commandButton>
+
+                            <p:commandButton
+                                    value="Delete"
+                                    icon="pi pi-trash"
+                                    class="ui-button-primary bg-red-700 text-white hover:bg-red-800 border-none"
+                                    process="@this"
+                                    oncomplete="PF('deleteWindowClient').show()"
+                            >
+                                <f:setPropertyActionListener
+                                    value="#{client}"
+                                    target="#{indexControler.selectedClient}"
+                                />
+                            </p:commandButton>
+                        </p:column>
+                    </p:dataTable>
+                </div>
+            </h:form>
+
+            <!-- Modal -->
+            <h:form id="form-modal">
+                <p:dialog header="Client Details"
+                          showEffect="fade"
+                          modal="true"
+                          widgetVar="windowModalClient"
+                          responsive="true"
+                >
+                    <p:outputPanel id="window-client" class="ui-fluid">
+                        <div class="field">
+                            <p:outputLabel for="firstname">Firstname</p:outputLabel>
+                            <p:inputText id="firstname"
+                                         value="#{indexControler.selectedClient.firstname}"
+                                         required="true"
+                            />
+                        </div>
+                        <div class="field">
+                            <p:outputLabel for="lastname">Lastname</p:outputLabel>
+                            <p:inputText id="lastname"
+                                         value="#{indexControler.selectedClient.lastname}"/>
+                        </div>
+                        <div class="field">
+                            <p:outputLabel for="membership">Membership</p:outputLabel>
+                            <p:inputNumber id="membership"
+                                           value="#{indexControler.selectedClient.membership}"
+                                           required="true"/>
+                        </div>
+                    </p:outputPanel>
+                    <f:facet name="footer">
+                        <p:commandButton value="Save" icon="pi pi-check"
+                                         process="window-client @this"
+                                         actionListener="#{indexControler.saveClient}"/>
+                        <p:commandButton value="Cancel" icon="pi pi-times"
+                                         onclick="PF('windowModalClient').hide()"
+                                         class="ui-button-secondary bg-red-700 border-500" type="button"/>
+                    </f:facet>
+                </p:dialog>
+                <p:confirmDialog
+                        widgetVar="deleteWindowClient"
+                        showEffect="fade"
+                        width="300"
+                        message="Do you really want to delete this client"
+                        header="Confirm" severity="warn"
+                >
+                    <p:commandButton
+                            value="Yes"
+                            icon="pi pi-check"
+                            actionListener="#{indexControler.deleteClient}"
+                            process="@this"
+                            oncomplete="PF('deleteWindowClient').hide()"
+                    />
+                    <p:commandButton
+                            value="No" type="button"
+                            styleClass="ui-button-secondary"
+                            icon="pi pi-times"
+                            onclick="PF('deleteWindowClient').hide()"
+                    />
+                </p:confirmDialog>
+
+            </h:form>
         </div>
-
-
     </h:body>
-
 </h:html>
